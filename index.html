@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Analog Clock with Runner</title>
+  <style>
+	button:nth-of-type(2) {
+	  background: #333;
+	  color: white;
+	}
+
+	button.icon-only {
+	  padding: 10px 8px; /* compact spacing */
+	  font-size: 18px;
+	  background-color: #4a4a4a; /* slate gray */
+	  color: white;
+	  border: none;
+	  border-radius: 6px;
+	  cursor: pointer;
+}
+ 
+.clock {
+  width: 300px;
+  height: 300px;
+  min-width: 300px;
+  min-height: 300px;
+  border: 8px solid #333;
+  border-radius: 50%;
+  position: relative;
+  background: white;
+  flex-shrink: 0;
+  overflow: visible;
+
+  box-shadow:
+    inset 0 0 10px rgba(0, 0, 0, 0.1),         /* soft inner glow */
+    18px 14px 28px rgba(0, 0, 0, 0.35),        /* diagonal bottom-right cast */
+    0 6px 12px rgba(0, 0, 0, 0.2),             /* soft vertical lift for bottom arc */
+    -6px -6px 10px rgba(255, 255, 255, 0.4);   /* top-left highlight */
+}
+
+	/* Glassy glare overlay */
+	.clock::after {
+	  content: '';
+	  position: absolute;
+	  top: 0; left: 0;
+	  width: 100%; height: 100%;
+	  border-radius: 50%;
+	  background: radial-gradient(circle at top left, rgba(255,255,255,0.2), transparent 70%);
+	  pointer-events: none;
+	}
+	
+	.center {
+	  width: 12px;
+	  height: 12px;
+	  background: radial-gradient(circle, #555 0%, #222 100%); /* ✅ Glossy center */
+	  border-radius: 50%;
+	  position: absolute;
+	  top: 50%;
+	  left: 50%;
+	  transform: translate(-50%, -50%);
+	  z-index: 10;
+	  box-shadow: 4px 4px 6px rgba(0, 0, 0, 0.6); /* ✅ Diagonal dome shadow */
+	}
+	
+	.hand {
+	  position: absolute;
+	  bottom: 50%;
+	  left: 50%;
+	  transform-origin: bottom center;
+	  transform: translateX(-50%) rotate(0deg);
+	  filter: drop-shadow(6px 6px 4px rgba(0, 0, 0, 0.5)); /* ✅ Tilted shadow */
+	}
+	
+	.number {
+	  position: absolute;
+	  width: 30px;
+	  height: 30px;
+	  text-align: center;
+	  line-height: 30px;
+	  font-weight: bold;
+	  color: #333;
+	  transform: translate(-50%, -50%);
+	  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3); /* ✅ Etched numbers */
+	}
+
+	body {
+	  margin: 0;
+	  background: #f0f0f0;
+	  font-family: sans-serif;
+	  height: 100vh;
+	  width: 100vw;
+	  position: relative;
+	}
+
+.container {
+  position: absolute;
+  top: 10%;
+  left: 5%;
+  display: flex;
+  align-items: flex-start;
+  flex-direction: row;
+  overflow-x: auto; /* Allow horizontal scroll if needed */
+  padding-bottom: 40px;
+  padding-right: 40px;
+  width: 1100px; /* ✅ Increased width to accommodate runner text */
+  box-sizing: border-box; /* Ensures padding doesn't overflow */
+}
+
+
+    .clock {
+      width: 300px;
+      height: 300px;
+      border: 8px solid #333;
+      border-radius: 50%;
+      position: relative;
+      background: white;
+    }
+
+    .center {
+      width: 12px;
+      height: 12px;
+      background: #333;
+      border-radius: 50%;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 10;
+    }
+
+    .hand {
+      position: absolute;
+      bottom: 50%;
+      left: 50%;
+      transform-origin: bottom center;
+      transform: translateX(-50%) rotate(0deg);
+    }
+
+    .hour, .minute, .second {
+      width: 0;
+      height: 0;
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+    }
+
+    .hour {
+      border-bottom: 72px solid #333;
+      z-index: 3;
+    }
+
+    .minute {
+      border-bottom: 108px solid #333;
+      z-index: 2;
+    }
+
+    .second {
+      border-bottom: 132px solid red;
+      z-index: 1;
+      transition: transform 0.05s linear;
+    }
+
+    .number {
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      text-align: center;
+      line-height: 30px;
+      font-weight: bold;
+      color: #333;
+      transform: translate(-50%, -50%);
+    }
+
+    .tick {
+      position: absolute;
+      width: 2px;
+      height: 5px;
+      background: #666;
+      transform-origin: center;
+    }
+
+    .button-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-left: 40px;
+      position: relative;
+      width: 200px;
+    }
+
+  .align-left {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    gap: 20px;
+  }
+
+
+	button {
+	  padding: 10px 20px;
+	  font-size: 16px;
+	  background: #333;
+	  color: white;
+	  border: none;
+	  border-radius: 6px;
+	  cursor: pointer;
+	  margin-bottom: 10px;
+	}
+
+    .status {
+      font-weight: bold;
+      color: #333;
+      width: 720px;
+      text-align: left;
+	  overflow-x: auto;
+    }
+
+.status pre {
+  white-space: pre;
+  word-break: break-word;      /* ✅ breaks long words if needed */
+  overflow-x: auto;
+  font-family: monospace;
+  width: 100%;
+  max-width: 100%;             /* ✅ respects screen width */
+  box-sizing: border-box;
+  padding: 10px;
+}
+
+
+	.status pre.warning {
+	  background: #f8d7da;
+	  border-left: 4px solid #b00020;
+	  border-radius: 4px;
+	  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+	  width: 720px;
+	}
+	.runner-wrapper {
+	  width: 100%;
+	  display: block;              /* No flex centering */
+	  margin-top: 10px;
+	  position: relative; /* ✅ Add this */
+	}
+
+	.runner-text {
+	  position: absolute;
+	  left: 10px; /* base anchor */
+	  transform: translateX(80px); /* shift entire block rightward */
+	  display: none;
+	  justify-content: center;
+	  font-weight: bold;
+	  font-size: 24px;
+	  font-family: sans-serif;
+	  margin-top: -24px;
+	  margin-bottom: 24px;
+	  flex-wrap: nowrap;
+	  white-space: nowrap;
+	  overflow-x: visible;
+	  width: fit-content;
+	  max-width: 100%;
+	  box-sizing: border-box;
+	  text-align: left;
+	  gap: 5px;
+	}
+
+
+	.runner-text span {
+	  display: inline-block;
+	  animation: slidePulse 3.5s ease-in-out infinite;
+	}
+
+/* G goes first, then N... then R */
+
+.runner-text span:nth-child(1)  { animation-delay: 1.7s; }
+.runner-text span:nth-child(2)  { animation-delay: 1.6s; }
+.runner-text span:nth-child(3)  { animation-delay: 1.5s; }
+.runner-text span:nth-child(4)  { animation-delay: 1.4s; }
+.runner-text span:nth-child(5)  { animation-delay: 1.3s; }
+.runner-text span:nth-child(6)  { animation-delay: 1.2s; }
+.runner-text span:nth-child(7)  { animation-delay: 1.1s; }
+.runner-text span:nth-child(8)  { animation-delay: 1.0s; }
+.runner-text span:nth-child(9)  { animation-delay: 0.9s; }
+.runner-text span:nth-child(10) { animation-delay: 0.8s; }
+.runner-text span:nth-child(11) { animation-delay: 0.7s; }
+.runner-text span:nth-child(12) { animation-delay: 0.6s; }
+.runner-text span:nth-child(13) { animation-delay: 0.5s; }
+.runner-text span:nth-child(14) { animation-delay: 0.4s; }
+.runner-text span:nth-child(15) { animation-delay: 0.3s; }
+.runner-text span:nth-child(16) { animation-delay: 0.2s; }
+.runner-text span:nth-child(17) { animation-delay: 0.1s; }
+.runner-text span:nth-child(18) { animation-delay: 0s; }
+
+
+@keyframes slidePulse {
+  0%   { transform: translateX(0); }
+  25%  { transform: translateX(10px); }
+  50%  { transform: translateX(0); }
+  75%  { transform: translateX(-10px); }
+  100% { transform: translateX(0); }
+}
+
+@media (max-width: 500px) {
+  .status {
+    margin-left: 0 !important;
+    width: 100vw;              /* Full viewport width */
+    max-width: 100vw;          /* Prevent clipping */
+    box-sizing: border-box;
+    overflow-x: visible;       /* Let content flow naturally */
+  }
+
+  .status pre.warning {
+    width: 100vw;              /* Match viewport width */
+    max-width: 100vw;
+    overflow-x: visible;
+    white-space: nowrap;       /* Prevent wrapping */
+    font-family: monospace;
+    padding: 14px 18px;
+    box-sizing: border-box;
+    text-align: left;
+    direction: ltr;
+  }
+  #status {
+    margin-left: 0 !important;
+    width: 100vw;
+    max-width: 100vw;
+    box-sizing: border-box;
+    overflow-x: auto;           /* ✅ Enables horizontal scrollbar */
+  }
+
+  #status pre {
+    width: max-content;
+    max-width: none;
+    overflow-x: auto;           /* ✅ Scrolls if content overflows */
+    white-space: pre;           /* ✅ Preserves line breaks and spacing */
+    font-family: monospace;
+    padding: 14px 18px;
+    box-sizing: border-box;
+    text-align: left;
+    direction: ltr;
+  }
+
+  #status.warning pre {
+    background: #f8d7da;
+    border-left: 4px solid #b00020;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+}
+
+	.check-button {
+  padding: 10px 20px;
+  font-size: 16px;
+  min-width: 100px; /* or match Check 1's width */
+  background-color: #333;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.check-input {
+  padding: 10px 20px; /* match button padding */
+  font-size: 16px;     /* match button font size */
+  width: 50%;
+  max-width: 100px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box; /* ensures padding doesn't overflow */
+}
+
+.log-label {
+  display: inline-block;
+  color: #333;
+  font-weight: normal;
+  cursor: pointer; /* 👈 this is the key */
+  margin-top: 8px;
+  text-decoration: none;
+}
+
+.log-label:hover {
+  text-decoration: underline;
+  color: #333;
+}
+  .countdown {
+    display: flex;
+    gap: 12px;
+	margin-top: 10px;
+  }
+  .digit {
+    position: relative;
+    width: 25px;   /* half width */
+    height: 35px;  /* half height */
+    perspective: 1000px;
+    border: 1px solid #000;
+    border-radius: 4px;
+    background: #fff;
+    font-size: 24px;   /* half font size */
+    color: #000;
+    text-align: center;
+    line-height: 35px; /* half line height */
+    overflow: hidden;
+  }
+  .current {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+  }
+  .flip-old, .flip-new {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    font-size: 24px;
+    color: #000;
+    text-align: center;
+    background: #fff;
+    line-height: 35px;
+    backface-visibility: hidden;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  }
+  .flip-old {
+    z-index: 2;
+    transform-origin: top;
+    animation: flipOut 0.7s ease-in forwards;
+  }
+  .flip-new {
+    z-index: 1;
+    transform: rotateX(0deg);
+  }
+  @keyframes flipOut {
+    0% { transform: rotateX(0deg); }
+    100% { transform: rotateX(-90deg); }
+  }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="clock">
+      <div class="hand hour" id="hour"></div>
+      <div class="hand minute" id="minute"></div>
+      <div class="hand second" id="second"></div>
+      <div class="center"></div>
+    </div>
+
+    <div class="button-container">
+      <div class="align-left">
+		<div style="display: flex; gap: 10px;">
+		  <button onclick="startProcess()">Check 1</button>
+		  <button onclick="toggleFold()" class="icon-only">🕮</button>
+		</div>
+        <div class="status" id="status">
+			<div id="trigger-msg"></div>
+		</div>
+		<div class="runner-wrapper">
+			<div class="runner-text" id="runner">
+			  <span>R</span><span>U</span><span>N</span><span>N</span><span>I</span><span>N</span><span>G</span>
+			  <span>,</span><span>&nbsp;</span>
+			  <span>W</span><span>A</span><span>I</span><span>T</span><span>&nbsp;</span>
+			  <span>1</span><span>m</span><span>5</span><span>9</span><span>s</span>
+			</div>
+			<div class="countdown" id="countdown"></div>
+		</div>	
+		<div style="display: flex; gap: 10px; margin-top: 10px;">
+			<button onclick="startProcess2()">Check 2</button>
+			<button onclick="toggleFold2()" class="icon-only">🕮</button>
+		</div>
+		<div id="status2" class="status"></div>
+		<div class="runner-wrapper">
+			<div class="runner-text" id="runner2">
+			  <span>R</span><span>U</span><span>N</span><span>N</span><span>I</span><span>N</span><span>G</span><span>,</span>
+			  <span>&nbsp;</span><span>W</span><span>A</span><span>I</span><span>T</span><span>&nbsp;</span>
+			  <span>1</span><span>m</span><span>5</span><span>0</span><span>s</span>
+			</div>
+			<div class="countdown" id="countdown2"></div>
+		</div>	
+		<div style="display: flex; gap: 10px; margin-top: 10px; align-items: center;">
+		  <button id="check3" class="check-button" onclick="startProcess3()">Check 3</button>
+		  <input type="text" id="input3" class="check-input" style="transform: translateY(-5px);" placeholder="code" />
+		</div>
+		<div id="status3" class="status"></div>
+      </div>
+    </div>
+  </div>
+
+  <audio id="ding" src="https://www.soundjay.com/button/sounds/button-3.mp3" preload="auto"></audio>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+	<script>
+	  window.addEventListener('DOMContentLoaded', function() {
+		document.getElementById('input3').addEventListener('keydown', function(event) {
+		  if (event.key === 'Enter') {
+			startProcess3();
+		  }
+		});
+	  });
+	</script>
+
+  <script>
+    const clock = document.querySelector('.clock');
+
+    // Add numbers
+    const numberRadius = 135;
+    for (let i = 1; i <= 12; i++) {
+      const angle = (i * 30) * Math.PI / 180;
+      const x = 150 + Math.sin(angle) * numberRadius;
+      const y = 150 - Math.cos(angle) * numberRadius;
+      const num = document.createElement('div');
+      num.className = 'number';
+      num.style.left = `${x}px`;
+      num.style.top = `${y}px`;
+      num.textContent = i;
+      clock.appendChild(num);
+    }
+
+    // Add tick marks
+    const tickCount = 60;
+    const tickRadius = 145;
+    for (let i = 0; i < tickCount; i++) {
+      const angleDeg = i * 6;
+      const angleRad = angleDeg * Math.PI / 180;
+      const x = 150 + Math.sin(angleRad) * tickRadius;
+      const y = 150 - Math.cos(angleRad) * tickRadius;
+      const tick = document.createElement('div');
+      tick.className = 'tick';
+      tick.style.left = `${x}px`;
+      tick.style.top = `${y}px`;
+      tick.style.transform = `translate(-50%, -50%) rotate(${angleDeg}deg)`;
+      clock.appendChild(tick);
+    }
+
+    // Clock animation
+    let lastSec = 0;
+    let rotationOffset = 0;
+
+    function updateClock() {
+      const now = new Date();
+      const sec = now.getSeconds() + now.getMilliseconds() / 1000;
+      const min = now.getMinutes() + sec / 60;
+      const hr = now.getHours() % 12 + min / 60;
+
+      if (sec < lastSec) {
+        rotationOffset += 360;
+      }
+      lastSec = sec;
+
+      const secDeg = sec * 6 + rotationOffset;
+      const minDeg = min * 6;
+      const hrDeg = hr * 30;
+
+      document.getElementById('second').style.transform = `translateX(-50%) rotate(${secDeg}deg)`;
+      document.getElementById('minute').style.transform = `translateX(-50%) rotate(${minDeg}deg)`;
+      document.getElementById('hour').style.transform = `translateX(-50%) rotate(${hrDeg}deg)`;
+
+      requestAnimationFrame(updateClock);
+    }
+
+    requestAnimationFrame(updateClock);
+
+    // Button action
+function startProcess() {
+  const runner = document.getElementById('runner');
+  const status = document.getElementById('status');
+  const container = document.querySelector('.align-left');
+
+  runner.setAttribute('data-running', 'true');
+  runner.style.display = 'flex';
+  status.innerHTML = '<div id="trigger-msg">✅ Workflow triggered successfully</div>';
+  fetch('https://repo1-qygx.onrender.com/trigger-workflow', { method: 'POST' })
+    .then(res => res.json())
+    .then(data => {
+      const triggerMsg = document.getElementById('trigger-msg');
+      if (triggerMsg) {
+	    startCountdown(120, 'countdown');
+        triggerMsg.textContent = data.message || '✅ Workflow triggered successfully';
+        setTimeout(() => {
+          console.log('Showing runner now');
+          runner.style.display = 'flex';
+        }, 200);
+      }
+
+      // Delay before fetching logs
+      setTimeout(() => {
+        fetch('https://repo1-qygx.onrender.com/logs/cypress')
+          .then(res => res.json())
+          .then(logData => {
+            runner.style.display = 'none';
+            runner.setAttribute('data-running', 'false');
+
+            const { log, warning } = extractRelevantLog(logData.logs);
+
+            // Optional: Format date inside log if needed
+            const formattedLog = formatLogDate(log);
+
+            status.innerHTML = warning
+              ? `<pre class="warning">${formattedLog}</pre>`
+              : `<pre>${formattedLog}</pre>`;
+
+            confetti({
+              particleCount: 100,
+              spread: 70,
+              origin: { y: 0.6 }
+            });
+
+            document.getElementById('ding').play();
+          })
+          .catch(err => {
+            runner.style.display = 'none';
+            runner.setAttribute('data-running', 'false');
+            status.textContent = '❌ Error fetching logs';
+            console.error(err);
+          });
+      }, 120000);
+    })
+    .catch(err => {
+      runner.style.display = 'none';
+      runner.setAttribute('data-running', 'false');
+      status.textContent = '❌ Error triggering workflow';
+      console.error(err);
+    });
+}
+
+// Optional: Convert date inside log to Vietnam time
+function formatLogDate(log) {
+  return log.replace(/(\d{1,2})\/(\d{1,2})\/(\d{4})/, (match, d, m, y) => {
+    const date = new Date(`${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}T00:00:00Z`);
+    const localDate = new Intl.DateTimeFormat('vi-VN', {
+      timeZone: 'Asia/Ho_Chi_Minh'
+    }).format(date);
+    return localDate;
+  });
+}
+
+
+function extractRelevantLog(fullLog) {
+  if (typeof fullLog !== 'string') {
+    return {
+      log: '⚠️ Log data is missing or invalid.',
+      warning: true
+    };
+  }
+
+  const startMarker = 'My First Test';
+  const endMarker = '(Run Finished)';
+  const startIndex = fullLog.indexOf(startMarker);
+  const endIndex = fullLog.indexOf(endMarker);
+
+  if (startIndex !== -1 && endIndex !== -1 && endIndex > startIndex) {
+    return {
+      log: fullLog.slice(startIndex, endIndex + endMarker.length),
+      warning: false
+    };
+  }
+
+  return {
+    log: fullLog,
+    warning: true
+  };
+}
+
+
+function toggleFold() {
+  const status = document.getElementById('status');
+  const runner = document.getElementById('runner');
+  const countdown = document.getElementById('countdown');
+  
+  const hasContent = status.textContent.trim().length > 0;
+  const isRunning = runner.getAttribute('data-running') === 'true';
+
+  if (!hasContent) return;
+
+  const isHidden = status.style.display === 'none';
+  status.style.display = isHidden ? 'block' : 'none';
+  countdown.style.display = isHidden ? 'flex' : 'none';
+  runner.style.display = isHidden && isRunning ? 'flex' : 'none';
+}
+
+function startProcess2() {
+  let interval;
+  const runner = document.getElementById('runner2');
+  const status = document.getElementById('status2');
+
+  runner.setAttribute('data-running', 'true');
+  runner.style.display = 'flex';
+  status.textContent = '⏳ Triggering Robot Tests...';
+
+  fetch('https://repo1-qygx.onrender.com/trigger-robot-tests', {
+    method: 'POST'
+  })
+    .then(res => res.json())
+    .then(data => {
+      status.textContent = data.status || '✅ Robot Tests workflow triggered';
+	    startCountdown(110, 'countdown2');
+      setTimeout(() => {
+        Promise.all([
+          fetch('https://repo1-qygx.onrender.com/logs/robot').then(res => res.json()),
+          fetch('https://11tdlong.github.io/repo1/tmp/playwright_output.txt').then(res => res.text())
+        ])
+          .then(([logData, playwrightOutput]) => {
+            clearInterval(interval);
+            runner.style.display = 'none';
+            runner.setAttribute('data-running', 'false');
+
+			status.innerHTML = `
+			  <div style="font-family: monospace;">
+				✅ Robot Tests completed: 📄 <a href="${logData.logUrl}" target="_blank">Robot Log</a><br>
+				🎭 <strong>Playwright Output:</strong><br>
+				<pre>${playwrightOutput.trimStart()}</pre>
+			  </div>
+			`;
+
+            confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+            document.getElementById('ding').play();
+          })
+          .catch(err => {
+            clearInterval(interval);
+            runner.style.display = 'none';
+            runner.setAttribute('data-running', 'false');
+            status.textContent = '❌ Error fetching logs';
+            console.error(err);
+          });
+      }, 110000);
+    })
+    .catch(err => {
+      clearInterval(interval);
+      runner.style.display = 'none';
+      runner.setAttribute('data-running', 'false');
+      status.textContent = '❌ Error triggering Robot Tests';
+      console.error(err);
+    });
+}
+
+
+function toggleFold2() {
+  const status = document.getElementById('status2');
+  const runner = document.getElementById('runner2');
+  const countdown = document.getElementById('countdown2');
+  
+  const hasContent = status.textContent.trim().length > 0;
+  const isRunning = runner.getAttribute('data-running') === 'true';
+
+  if (!hasContent) return;
+
+  const isHidden = status.style.display === 'none';
+  status.style.display = isHidden ? 'block' : 'none';
+  countdown.style.display = isHidden ? 'flex' : 'none';
+  runner.style.display = isHidden && isRunning ? 'flex' : 'none';
+}
+function startProcess3() {
+  const code = document.getElementById('input3').value.trim();
+  const status = document.getElementById('status3');
+
+  if (!code) {
+    status.innerHTML = `<pre class="warning">⚠️ Please enter a stock code.</pre>`;
+    return;
+  }
+
+  status.textContent = '⏳ Fetching data...';
+
+  // ✅ First:  data
+  fetch(`https://repo1-qygx.onrender.com/fireant/${code}`)
+    .then(res => {
+      if (!res.ok) throw new Error('Backend fetch failed');
+      return res.json();
+    })
+    .then(data => {
+      if (data.error) {
+        status.innerHTML = `<pre class="warning">❌ ${data.error}</pre>`;
+        return Promise.reject('FireAnt error');
+      }
+
+      const fireantOutput = formatQuote(data.quotes || []);
+      status.innerHTML = `<pre><strong>📊 FireAnt Data</strong>\n\n${fireantOutput}</pre>`;
+
+      // ✅ Then: Formatted quotes from Bash script
+      return fetch(`https://repo1-qygx.onrender.com/quotes/${code}`);
+    })
+    .then(res => {
+      if (!res.ok) throw new Error('Formatted quotes fetch failed');
+      return res.text();
+    })
+    .then(formatted => {
+      // ✅ Append formatted quotes
+      status.innerHTML += `\n\n<pre><strong>📈 Formatted Quotes</strong>\n\n${formatted}</pre>`;
+    })
+    .catch(err => {
+      if (!status.innerHTML.includes('❌')) {
+        status.innerHTML = `<pre class="warning">❌ Error: ${err.message}</pre>`;
+      }
+      console.error(err);
+    });
+}
+
+
+function formatQuote(rawQuotes) {
+  if (!Array.isArray(rawQuotes) || rawQuotes.length === 0) return 'No data available';
+
+  const quote = rawQuotes[0];
+
+  // Extract and rename fields
+  const formatted = {
+    date: quote.date,
+    Open: quote.priceOpen,
+    Average: quote.priceAverage,
+    Close: quote.priceClose,
+    totalVolume: quote.totalVolume.toLocaleString('en-US'),
+    totalValue: quote.totalValue.toLocaleString('en-US')
+  };
+
+  // Convert to plain text format
+  return Object.entries(formatted)
+    .map(([key, value]) => `${key}: ${value}`)
+    .join('\n');
+}
+function startCountdown(start, id) {
+  const container = document.getElementById(id);
+  container.innerHTML = '';
+
+  // Create digits
+  const digits = String(start).padStart(3, '0').split('').map(n => {
+    const d = document.createElement('div');
+    d.className = 'digit';
+    d.innerHTML = `<div class="current">${n}</div>`;
+    container.appendChild(d);
+    return d;
+  });
+
+  let current = start;
+  const interval = setInterval(() => {
+    current--;
+    if (current < 0) { clearInterval(interval); return; }
+    const str = String(current).padStart(3, '0');
+    str.split('').forEach((n, i) => {
+      const cur = digits[i].querySelector('.current');
+      if (cur.textContent !== n) {
+        const flipOld = document.createElement('div');
+        flipOld.className = 'flip-old';
+        flipOld.textContent = cur.textContent;
+        const flipNew = document.createElement('div');
+        flipNew.className = 'flip-new';
+        flipNew.textContent = n;
+        digits[i].appendChild(flipOld);
+        digits[i].appendChild(flipNew);
+        flipOld.addEventListener('animationend', () => {
+          cur.textContent = n;
+          flipOld.remove();
+          flipNew.remove();
+        }, { once: true });
+      }
+    });
+  }, 1000);
+}
+  </script>
+</body>
+</html>
+
+
+
+
+
+
