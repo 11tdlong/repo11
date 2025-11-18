@@ -811,6 +811,7 @@ input4.addEventListener('blur', function() {
 });
 function startProcess4() {
   const code = document.getElementById('input3').value.trim();
+  const vu = document.getElementById('input4').value.trim();
   const codeField = document.getElementById('input3');
   const status = document.getElementById('status3');
   const status4 = document.getElementById('status4');
@@ -822,7 +823,27 @@ function startProcess4() {
 	}, 0);
     return;
   }
-  status4.textContent = '⏳ Running...';
+  status4.textContent = '⏳ Running..., 10 seconds';
+  // Call backend workflow (example: via fetch to your server)
+  fetch('/run-k6', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ code, vu })
+  })
+    .then(res => res.json())
+    .then(data => {
+      // backend should return { reportUrl: 'https://11tdlong.github.io/repo11/tmp/report.html' }
+      status4.innerHTML = `
+        <div style="font-family: monospace;">
+          ✅ k6 workflow completed: 📄 
+          <a href="${data.reportUrl}" target="_blank">View k6 Report</a>
+        </div>
+      `;
+    })
+    .catch(err => {
+      console.error(err);
+      status4.innerHTML = `<pre class="warning">❌ Workflow failed: ${err.message}</pre>`;
+    });
 }
 
 function formatQuote(rawQuotes) {
