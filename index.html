@@ -823,7 +823,7 @@ function startProcess4() {
 	}, 0);
     return;
   }
-  status4.textContent = '⏳ Running..., 10 seconds';
+  status4.textContent = '⏳ Running..., 22 seconds';
   // Call backend workflow (example: via fetch to your server)
   fetch('https://repo1-qygx.onrender.com/run-k6', {
     method: 'POST',
@@ -832,13 +832,22 @@ function startProcess4() {
   })
     .then(res => res.json())
     .then(data => {
-      // backend should return { reportUrl: 'https://11tdlong.github.io/repo11/tmp/report.html' }
-      status4.innerHTML = `
-        <div style="font-family: monospace;">
-          ✅ k6 workflow completed: 📄 
-          <a href="${data.reportUrl}" target="_blank">View k6 Report</a>
-        </div>
-      `;
+      // After 15s, fetch the report link
+      setTimeout(() => {
+        fetch('https://repo1-qygx.onrender.com/logs/k6')
+          .then(res => res.json())
+          .then(k6Data => {
+            status4.innerHTML = `
+              <div style="font-family: monospace;">
+                ✅ k6 workflow completed: 📄 
+                <a href="${k6Data.reportUrl}" target="_blank">View k6 Report</a>
+              </div>
+            `;
+          })
+          .catch(err => {
+            status4.innerHTML = `<pre class="warning">❌ Error fetching k6 report: ${err.message}</pre>`;
+          });
+      }, 22000); // wait 15 seconds
     })
     .catch(err => {
       console.error(err);
