@@ -474,7 +474,11 @@
 		</div>	
 		<div style="display: flex; gap: 10px; margin-top: 10px; align-items: center;">
 		  <button id="check3" class="check-button" onclick="startProcess3()">Check 3</button>
-		  <input type="text" id="input3" class="check-input" style="transform: translateY(-5px);" placeholder="code" />
+		  <input type="text" id="input3" class="check-input" style="padding: 10px 16px;width: 75px;transform: translateY(-5px);" placeholder="code" />
+		  <button id="check4" class="check-button" onclick="startProcess4()" style="margin-left: 20px;">Check 4</button>
+			<input type="number" id="input4" class="check-input" min="1" max="30" value="1" style="padding: 10px 10px;width: 75px;transform: translateY(-5px); width: 70px;" 
+			placeholder="Users" title="Numbers of virtual users, from 1 to 30"/>
+			<div id="status4" class="status" style="width: 150px; overflow: hidden; margin-left: 10px;transform: translateY(-6px);"></div>
 		</div>
 		<div id="status3" class="status"></div>
       </div>
@@ -746,9 +750,12 @@ function toggleFold2() {
 function startProcess3() {
   const code = document.getElementById('input3').value.trim();
   const status = document.getElementById('status3');
-
+  const codeField = document.getElementById('input3');
   if (!code) {
     status.innerHTML = `<pre class="warning">⚠️ Please enter a stock code.</pre>`;
+	setTimeout(() => {
+		codeField.focus();
+	}, 0);
     return;
   }
 
@@ -788,6 +795,35 @@ function startProcess3() {
     });
 }
 
+const input4 = document.getElementById('input4');
+const MIN_VAL = 1;
+const MAX_VAL = 30;
+input4.addEventListener('blur', function() {
+	let value = parseInt(this.value, 10);
+	
+	if (isNaN(value)) {
+		this.value = MIN_VAL;
+	} else if (value < MIN_VAL) {
+		this.value = MIN_VAL;
+	} else if (value > MAX_VAL) {
+		this.value = MAX_VAL; 
+	}
+});
+function startProcess4() {
+  const code = document.getElementById('input3').value.trim();
+  const codeField = document.getElementById('input3');
+  const status = document.getElementById('status3');
+  const status4 = document.getElementById('status4');
+
+  if (!code) {
+    status.innerHTML = `<pre class="warning">⚠️ Please enter a stock code.</pre>`;
+		setTimeout(() => {
+		codeField.focus();
+	}, 0);
+    return;
+  }
+  status4.textContent = '⏳ Running...';
+}
 
 function formatQuote(rawQuotes) {
   if (!Array.isArray(rawQuotes) || rawQuotes.length === 0) return 'No data available';
