@@ -430,6 +430,22 @@
     0% { transform: rotateX(0deg); }
     100% { transform: rotateX(-90deg); }
   }
+  .dropdown {
+    height: 44px;
+    padding: 0 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background-color: #f5f5f5;
+    font-size: 14px;
+    cursor: pointer;
+    /* keep native arrow visible by NOT using appearance:none */
+  }
+
+  .dropdown:focus {
+    outline: none;
+    border-color: #0078d7;   /* highlight on focus */
+    background-color: #fff;
+  }
   </style>
 </head>
 <body>
@@ -460,7 +476,13 @@
 			<div class="countdown" id="countdown"></div>
 		</div>	
 		<div style="display: flex; gap: 10px; margin-top: 10px;">
-			<button onclick="startProcess2()">Check 2</button>
+			<button onclick="startProcess2()" style="flex-shrink: 0;">Check 2</button>
+			  <!-- Dropdown added here -->
+			    <select id="frameworkSelect2" class="dropdown">
+				<option selected>Robot framework</option>
+				<option>Playwright with Cucumber</option>
+				<option>Java Selenium with Cucumber</option>
+			  </select>
 			<button onclick="toggleFold2()" class="icon-only">🕮</button>
 		</div>
 		<div id="status2" class="status"></div>
@@ -476,8 +498,8 @@
 		  <button id="check3" class="check-button" onclick="startProcess3()">Check 3</button>
 		  <input type="text" id="input3" class="check-input" style="padding: 10px 16px;width: 75px;transform: translateY(-5px);" placeholder="code" />
 		  <button id="check4" class="check-button" onclick="startProcess4()" style="margin-left: 20px;">Check 4</button>
-			<input type="number" id="input4" class="check-input" min="1" max="30" value="1" style="padding: 10px 10px;width: 75px;transform: translateY(-5px); width: 70px;" 
-			placeholder="Users" title="Numbers of virtual users, from 1 to 30"/>
+			<input type="number" id="input4" class="check-input" min="1" max="50" value="1" style="padding: 10px 10px;width: 75px;transform: translateY(-5px); width: 70px;" 
+			placeholder="Users" title="Numbers of virtual users, from 1 to 50"/>
 			<div id="status4" class="status" style="width: 300px; overflow: hidden; margin-left: 10px;transform: translateY(-6px);"></div>
 		</div>
 		<div id="status3" class="status"></div>
@@ -680,55 +702,93 @@ function startProcess2() {
   let interval;
   const runner = document.getElementById('runner2');
   const status = document.getElementById('status2');
+  const framework = document.getElementById('frameworkSelect2').value;
 
-  runner.setAttribute('data-running', 'true');
-  runner.style.display = 'flex';
-  status.textContent = '⏳ Triggering Robot Tests...';
+  // 🔀 Branch based on dropdown value
+  if (framework === "Robot framework") {
+	  runner.setAttribute('data-running', 'true');
+	  runner.style.display = 'flex';
+	  status.textContent = '⏳ Triggering Robot Tests...';
 
-  fetch('https://repo1-qygx.onrender.com/trigger-robot-tests', {
-    method: 'POST'
-  })
-    .then(res => res.json())
-    .then(data => {
-      status.textContent = data.status || '✅ Robot Tests workflow triggered';
-	    startCountdown(110, 'countdown2');
-      setTimeout(() => {
-        Promise.all([
-          fetch('https://repo1-qygx.onrender.com/logs/robot').then(res => res.json()),
-          fetch('https://11tdlong.github.io/repo11/tmp/playwright_output.txt').then(res => res.text())
-        ])
-          .then(([logData, playwrightOutput]) => {
-            clearInterval(interval);
-            runner.style.display = 'none';
-            runner.setAttribute('data-running', 'false');
+	  fetch('https://repo1-qygx.onrender.com/trigger-robot-tests', {
+		method: 'POST'
+	  })
+		.then(res => res.json())
+		.then(data => {
+		  status.textContent = data.status || '✅ Robot Tests workflow triggered';
+			startCountdown(110, 'countdown2');
+		  setTimeout(() => {
+			Promise.all([
+			  fetch('https://repo1-qygx.onrender.com/logs/robot').then(res => res.json()),
+			  fetch('https://11tdlong.github.io/repo11/tmp/playwright_output.txt').then(res => res.text())
+			])
+			  .then(([logData, playwrightOutput]) => {
+				clearInterval(interval);
+				runner.style.display = 'none';
+				runner.setAttribute('data-running', 'false');
 
+				status.innerHTML = `
+				  <div style="font-family: monospace;">
+					✅ Robot Tests completed: 📄 <a href="${logData.logUrl}" target="_blank">Robot Log</a><br>
+					🎭 <strong>Playwright Output:</strong><br>
+					<pre>${playwrightOutput.trimStart()}</pre>
+				  </div>
+				`;
+
+				confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+				document.getElementById('ding').play();
+			  })
+			  .catch(err => {
+				clearInterval(interval);
+				runner.style.display = 'none';
+				runner.setAttribute('data-running', 'false');
+				status.textContent = '❌ Error fetching logs';
+				console.error(err);
+			  });
+		  }, 110000);
+		})
+		.catch(err => {
+		  clearInterval(interval);
+		  runner.style.display = 'none';
+		  runner.setAttribute('data-running', 'false');
+		  status.textContent = '❌ Error triggering Robot Tests';
+		  console.error(err);
+		});
+	}
+	else if (framework === "Playwright with Cucumber") {
+	  status.textContent = '⏳ Running... please wait ~62 seconds';
+	  runner.style.display = 'block';
+	  runner.setAttribute('data-running', 'true');
+
+	  // Trigger backend workflow
+	  fetch('https://repo1-qygx.onrender.com/trigger-playwright-cucumber', {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' }
+	  })
+		.then(res => res.json())
+		.then(() => {
+		  // Wait before showing report link
+		  setTimeout(() => {
 			status.innerHTML = `
 			  <div style="font-family: monospace;">
-				✅ Robot Tests completed: 📄 <a href="${logData.logUrl}" target="_blank">Robot Log</a><br>
-				🎭 <strong>Playwright Output:</strong><br>
-				<pre>${playwrightOutput.trimStart()}</pre>
+				✅ Playwright+Cucumber workflow completed: 📄 
+				<a href="https://11tdlong.github.io/repo11/tmp/index.html" target="_blank">
+				  View Playwright+Cucumber Report
+				</a>
 			  </div>
 			`;
-
-            confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-            document.getElementById('ding').play();
-          })
-          .catch(err => {
-            clearInterval(interval);
-            runner.style.display = 'none';
-            runner.setAttribute('data-running', 'false');
-            status.textContent = '❌ Error fetching logs';
-            console.error(err);
-          });
-      }, 110000);
-    })
-    .catch(err => {
-      clearInterval(interval);
-      runner.style.display = 'none';
-      runner.setAttribute('data-running', 'false');
-      status.textContent = '❌ Error triggering Robot Tests';
-      console.error(err);
-    });
+		  }, 62000); // ~50s wait for workflow to finish
+		})
+		.catch(err => {
+		  status.textContent = "❌ Error triggering Playwright+Cucumber workflow";
+		  console.error(err);
+		});
+	} else if (framework === "Java Selenium with Cucumber") {
+		// 🟡 Prototype placeholder
+		status.textContent = "⚠️ Java Selenium+Cucumber workflow not yet implemented.";
+		runner.style.display = 'none';
+		runner.setAttribute('data-running', 'false');
+	}
 }
 
 
@@ -797,7 +857,7 @@ function startProcess3() {
 
 const input4 = document.getElementById('input4');
 const MIN_VAL = 1;
-const MAX_VAL = 30;
+const MAX_VAL = 50;
 input4.addEventListener('blur', function() {
 	let value = parseInt(this.value, 10);
 	
