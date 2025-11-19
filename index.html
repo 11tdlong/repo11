@@ -478,7 +478,7 @@
 		  <button id="check4" class="check-button" onclick="startProcess4()" style="margin-left: 20px;">Check 4</button>
 			<input type="number" id="input4" class="check-input" min="1" max="30" value="1" style="padding: 10px 10px;width: 75px;transform: translateY(-5px); width: 70px;" 
 			placeholder="Users" title="Numbers of virtual users, from 1 to 30"/>
-			<div id="status4" class="status" style="width: 150px; overflow: hidden; margin-left: 10px;transform: translateY(-6px);"></div>
+			<div id="status4" class="status" style="width: 300px; overflow: hidden; margin-left: 10px;transform: translateY(-6px);"></div>
 		</div>
 		<div id="status3" class="status"></div>
       </div>
@@ -813,47 +813,42 @@ function startProcess4() {
   const code = document.getElementById('input3').value.trim();
   const vu = document.getElementById('input4').value.trim();
   const codeField = document.getElementById('input3');
-  const status = document.getElementById('status3');
   const status4 = document.getElementById('status4');
 
   if (!code) {
-    status.innerHTML = `<pre class="warning">⚠️ Please enter a stock code.</pre>`;
-		setTimeout(() => {
-		codeField.focus();
-	}, 0);
+    status4.innerHTML = `<pre class="warning">⚠️ Please enter a stock code.</pre>`;
+    setTimeout(() => codeField.focus(), 0);
     return;
   }
-  status4.textContent = '⏳ Running..., 22 seconds';
-  // Call backend workflow (example: via fetch to your server)
+
+  status4.textContent = '⏳ Running... please wait ~40 seconds';
+
+  // Trigger backend workflow
   fetch('https://repo1-qygx.onrender.com/run-k6', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ code, vu })
   })
     .then(res => res.json())
-    .then(data => {
-      // After 15s, fetch the report link
+    .then(() => {
+      // Wait before showing report link
       setTimeout(() => {
-        fetch('https://repo1-qygx.onrender.com/logs/k6')
-          .then(res => res.json())
-          .then(k6Data => {
-            status4.innerHTML = `
-              <div style="font-family: monospace;">
-                ✅ k6 workflow completed: 📄 
-                <a href="${k6Data.reportUrl}" target="_blank">View k6 Report</a>
-              </div>
-            `;
-          })
-          .catch(err => {
-            status4.innerHTML = `<pre class="warning">❌ Error fetching k6 report: ${err.message}</pre>`;
-          });
-      }, 22000); // wait 15 seconds
+        status4.innerHTML = `
+          <div style="font-family: monospace;">
+            ✅ k6 workflow completed: 📄 
+            <a href="https://11tdlong.github.io/repo11/tmp/report.html" target="_blank">
+              View k6 Report
+            </a>
+          </div>
+        `;
+      }, 40000); // 40s wait
     })
     .catch(err => {
       console.error(err);
       status4.innerHTML = `<pre class="warning">❌ Workflow failed: ${err.message}</pre>`;
     });
 }
+
 
 function formatQuote(rawQuotes) {
   if (!Array.isArray(rawQuotes) || rawQuotes.length === 0) return 'No data available';
