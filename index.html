@@ -707,7 +707,21 @@ function toggleFold() {
   countdown.style.display = isHidden ? 'flex' : 'none';
   runner.style.display = isHidden && isRunning ? 'flex' : 'none';
 }
+function updateStatus(statusEl, newHtml) {
+  // Trim whitespace so we don't miscount empty <div> tags
+  const current = statusEl.innerHTML.trim();
 
+  if (current) {
+    // Append new result below the existing ones
+    statusEl.innerHTML += `
+      <hr style="margin:8px 0;">
+      ${newHtml}
+    `;
+  } else {
+    // First result, set directly
+    statusEl.innerHTML = newHtml;
+  }
+}
 function startProcess2() {
   let interval;
   const runner = document.getElementById('runner2');
@@ -743,13 +757,13 @@ function startProcess2() {
 				runner.style.display = 'none';
 				runner.setAttribute('data-running', 'false');
 
-				status.innerHTML = `
+				updateStatus(status, `
 				  <div style="font-family: monospace;">
 					✅ Robot Tests completed: 📄 <a href="${logData.logUrl}" target="_blank">Robot Log</a><br>
 					🎭 <strong>Playwright Output:</strong><br>
 					<pre>${playwrightOutput.trimStart()}</pre>
 				  </div>
-				`;
+				`);
 
 				confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
 				document.getElementById('ding').play();
@@ -790,14 +804,14 @@ function startProcess2() {
 		  setTimeout(() => {
 		  		runner21.style.display = 'none';
 				runner21.setAttribute('data-running', 'false');
-			status.innerHTML = `
+			updateStatus(status, `
 			  <div style="font-family: monospace;">
 				✅ Playwright+Cucumber workflow completed: 📄 
 				<a href="https://11tdlong.github.io/repo11/tmp/index.html" target="_blank">
 				  View Playwright+Cucumber Report
 				</a>
 			  </div>
-			`;
+			`);
 		  }, 62000); // ~50s wait for workflow to finish
 		})
 		.catch(err => {
@@ -823,14 +837,14 @@ function startProcess2() {
 			setTimeout(() => {
 			  runner22.style.display = 'none';
 			  runner22.setAttribute('data-running', 'false');
-			  status.innerHTML = `
+			  updateStatus(status, `
 				<div style="font-family: monospace;">
 				  ✅ Java Selenium+Cucumber workflow completed: 📄 
 				  <a href="https://11tdlong.github.io/repo11/tmp/cucumber-reports.html" target="_blank">
 					View Java Cucumber Report
 				  </a>
 				</div>
-			  `;
+			  `);
 			  confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
 			  document.getElementById('ding').play();
 			}, 62000); // add a wait time similar to others
