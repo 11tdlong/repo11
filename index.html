@@ -707,21 +707,29 @@ function toggleFold() {
   countdown.style.display = isHidden ? 'flex' : 'none';
   runner.style.display = isHidden && isRunning ? 'flex' : 'none';
 }
-function updateStatus(statusEl, newHtml) {
-  // Trim whitespace so we don't miscount empty <div> tags
-  const current = statusEl.innerHTML.trim();
+function showTempStatus(statusEl, id, message) {
+  const temp = document.createElement('div');
+  temp.id = id;
+  temp.textContent = message;
+  statusEl.appendChild(temp);
+}
 
+function updateStatus(statusEl, newHtml, tempId) {
+  // Remove only the temporary node for this suite
+  const temp = document.getElementById(tempId);
+  if (temp) temp.remove();
+
+  const current = statusEl.innerHTML.trim();
   if (current) {
-    // Append new result below the existing ones
     statusEl.innerHTML += `
       <hr style="margin:8px 0;">
       ${newHtml}
     `;
   } else {
-    // First result, set directly
     statusEl.innerHTML = newHtml;
   }
 }
+
 function startProcess2() {
   let interval;
   const runner = document.getElementById('runner2');
@@ -738,14 +746,13 @@ function startProcess2() {
 	  runner22.setAttribute('data-running', 'false');
 	  runner.setAttribute('data-running', 'true');
 	  runner.style.display = 'flex';
-	  status.textContent = '⏳ Triggering Robot Tests...';
-
+	  showTempStatus(status, 'robot-temp', '⏳ Triggering Robot Tests...');
 	  fetch('https://repo1-qygx.onrender.com/trigger-robot-tests', {
 		method: 'POST'
 	  })
 		.then(res => res.json())
 		.then(data => {
-		  status.textContent = data.status || '✅ Robot Tests workflow triggered';
+		  showTempStatus(status, 'robot-temp', data.status || '✅ Robot Tests workflow triggered');
 			startCountdown(110, 'countdown2');
 		  setTimeout(() => {
 			Promise.all([
@@ -763,7 +770,7 @@ function startProcess2() {
 					🎭 <strong>Playwright Output:</strong><br>
 					<pre>${playwrightOutput.trimStart()}</pre>
 				  </div>
-				`);
+				`, 'robot-temp');
 
 				confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
 				document.getElementById('ding').play();
@@ -792,7 +799,7 @@ function startProcess2() {
 	  runner22.setAttribute('data-running', 'false');
 	  runner21.style.display = 'flex';
 	  runner21.setAttribute('data-running', 'true');
-      status.textContent = '⏳ Running Playwright...';
+	  showTempStatus(status, 'robot-temp1', '⏳ Running Playwright...');
 	  // Trigger backend workflow
 	  fetch('https://repo1-qygx.onrender.com/trigger-playwright-cucumber', {
 		method: 'POST',
@@ -811,7 +818,7 @@ function startProcess2() {
 				  View Playwright+Cucumber Report
 				</a>
 			  </div>
-			`);
+			`, 'robot-temp1');
 		  }, 62000); // ~50s wait for workflow to finish
 		})
 		.catch(err => {
@@ -825,7 +832,7 @@ function startProcess2() {
 		runner21.setAttribute('data-running', 'false');
 		runner22.style.display = 'flex';
 	    runner22.setAttribute('data-running', 'true');
-		status.textContent = '⏳ Running Selenium Java...';
+		showTempStatus(status, 'robot-temp2', '⏳ Running Selenium Java...');
 		// Trigger backend workflow
 		fetch('https://repo1-qygx.onrender.com/trigger-java-cucumber', {
 		  method: 'POST',
@@ -844,7 +851,7 @@ function startProcess2() {
 					View Java Cucumber Report
 				  </a>
 				</div>
-			  `);
+			  `, 'robot-temp2');
 			  confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
 			  document.getElementById('ding').play();
 			}, 62000); // add a wait time similar to others
