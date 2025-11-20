@@ -794,16 +794,44 @@ function startProcess2() {
 		  console.error(err);
 		});
 	} else if (framework === "Java Selenium with Cucumber") {
-		// 🟡 Prototype placeholder
-		status.textContent = "⚠️ Java Selenium+Cucumber workflow not yet implemented.";
-		runner21.style.display = 'none';
-		runner21.setAttribute('data-running', 'false');
+	  runner.style.display = 'none';
+	  runner.setAttribute('data-running', 'false');
+	  runner21.style.display = 'none';
+	  runner21.setAttribute('data-running', 'false');
+      status.textContent = '⏳ Running Selenium Java...';
+	  // Trigger backend workflow
+	  fetch('https://repo1-qygx.onrender.com/trigger-java-cucumber', {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' }
+	  })
+		.then(res => res.json())
+		.then(() => {
+		  // Wait before showing report link
+		  setTimeout(() => {
+		  		runner21.style.display = 'none';
+				runner21.setAttribute('data-running', 'false');
+			status.innerHTML = `
+			  <div style="font-family: monospace;">
+				✅ Java Selenium+Cucumber workflow completed: 📄 
+				<a href="https://11tdlong.github.io/repo11/tmp/cucumber-reports.html" target="_blank">
+				  View Java Cucumber Report
+				</a>
+			  </div>
+			`;
+			confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+			document.getElementById('ding').play();
+		  })
+		  .catch(err => {
+			status.textContent = "❌ Error fetching Java Cucumber report";
+			console.error(err);
+		  });
 	}
 }
 
 
 function toggleFold2() {
   const status = document.getElementById('status2');
+  const status21 = document.getElementById('status21');
   const runner = document.getElementById('runner2');
   const runner21 = document.getElementById('runner21');
   const countdown = document.getElementById('countdown2');
@@ -814,10 +842,11 @@ function toggleFold2() {
   if (!hasContent) return;
 
   const isHidden = status.style.display === 'none';
+  const isHidden21 = status21.style.display === 'none';
   status.style.display = isHidden ? 'block' : 'none';
   countdown.style.display = isHidden ? 'flex' : 'none';
   runner.style.display = isHidden && isRunning ? 'flex' : 'none';
-  runner21.style.display = isHidden && isRunning21 ? 'flex' : 'none';
+  runner21.style.display = isHidden21 && isRunning21 ? 'flex' : 'none';
 }
 function startProcess3() {
   const code = document.getElementById('input3').value.trim();
