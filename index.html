@@ -453,10 +453,163 @@
     border-color: #0078d7;   /* highlight on focus */
     background-color: #fff;
   }
-  
+.info-icon {
+  margin-top: 440px; /* push further down */
+  margin-left: 140px;
+  display: inline-block;
+  cursor: pointer;
+  font-size: 18px;
+  color: #007BFF;
+  background: none;   /* no background rectangle */
+  border: none;
+  padding: 0;
+  box-shadow: none;
+  filter: drop-shadow(3px 3px 2px rgba(0, 0, 0, 0.35)); /* subtle shadow */
+  transition: transform 0.2s ease; /* smooth scaling */
+  z-index: 9999;
+  position: relative;
+}
+
+.info-icon:hover {
+  transform: scale(1.3); /* ✅ grows bigger on hover */
+  background: none;      /* ensure no background box */
+  box-shadow: none;      /* ensure no box shadow box */
+}
+
+
+.tooltip-popup {
+  display: none; /* hidden by default */
+  position: absolute;
+  margin-top: 5px;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 12px;
+  max-width: 300px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  z-index: 1000;
+}
+
+.popup {
+  display: none; /* hidden by default */
+  position: absolute;   /* anchor instead of pushing with margins */
+  top: 93px;           /* distance down from parent */
+  left: 890px;          /* distance right from parent */
+  background: rgba(255, 255, 255, 0.95); /* slightly transparent, less heavy */
+  border: 1px solid #ddd;
+  border-radius: 12px;  /* more rounded, bubble-like */
+  padding: 12px;
+  max-width: 800px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25); /* softer shadow, floating feel */
+  z-index: 1000;
+}
+
+.popup-content {
+  padding: 16px;
+  text-align: center;
+  font-size: 16px;
+  line-height: 1.4;
+  text-align: justify;
+  text-justify: inter-word;
+  hyphens: auto;
+    padding: 3px 3px;   /* reduced padding: closer to left/right edges */
+	  border-radius: 12px;
+  padding: 20px; /* give breathing room */
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15); /* softer, lighter shadow */
+	transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.popup-content p {
+  text-align: justify;         /* evenly distributes text across the line */
+  text-justify: inter-word;    /* improves spacing between words */
+  hyphens: auto;               /* optional: better breaks on small screens */
+}
+/* Optional: add a little "X" close button in the corner */
+.popup::after {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  font-size: 14px;
+  color: #666;
+  cursor: pointer;
+}
+.close-btn {
+  position: absolute;
+  top: 3px;
+  right: 1px;
+  background: none;
+  border: none;
+  font-size: 16px;
+  color: #666;
+  cursor: pointer;
+}
+
+.close-btn:hover {
+  color: #000; /* darken on hover */
+}
+
+.popup-content h4,
+.popup-content h2 {
+  margin-bottom: 6px;   /* tighter gap below heading */
+}
+/* Hover underline for heading */
+.toggle-heading {
+  cursor: pointer;
+  transition: color 0.3s;
+}
+.toggle-heading:hover {
+  text-decoration: underline;
+  color: #007acc; /* optional highlight color */
+}
+
+/* Hidden by default */
+.toggle-content {
+  display: none;
+  margin-top: 10px;
+  color: #333;
+}
+.ellipsis {
+  display: block;
+  margin-top: 5px;
+  font-weight: bold;
+  color: #666;
+}
   </style>
 </head>
 <body>
+      <div id="introPopup" class="popup">
+        <div class="popup-content">
+		<button class="close-btn" onclick="closePopup()">✖</button>
+          <h3>Welcome, have a nice day</h3>
+          <p>
+            This page is to show my portforlios, demonstrations about several topics in software development, but basically the main points are about Autotomation tests and related technologies
+          </p>
+		    <h4 id="originHeading" class="toggle-heading">Origin</h4>
+			<p id="originContent" class="toggle-content">
+			  <!-- You can replace this with your new content -->
+			  This was started when i wanted to create a smooth movement clock which is currently on the left. Clocks with such movement seems to be so rare, I can only see them in 2 places (1 is a javascript thing found using Google search named Smooth Seconds Online Clock, other is the clock symbol in iphone). Next I got an idea to have a tool read updates on particular websites, this can be achived using popular web automation tools (cypress, playwright, robotframework, selenium,...) and it needs to be on cloud so we can call it just from the mobiles hence github action, github page with backend provision are built. Next I added some api tests which later became load test demonstration which is also a crucial domain in software testing. And finally so far, I've added muliple choices of reports for automatic regression tests
+			</p>
+			<p id="originEllipsis" class="ellipsis">...</p>
+			
+			<h4 id="descriptionHeading" class="toggle-heading">Description</h4>
+				<div id="descriptionContent" class="toggle-content">
+				  <h5 style="font-size:16px; margin-bottom:4px;">1. Frameworks and tools</h5>
+				  <ul style="margin-top:0;">
+					<li>sdfs</li>
+					<li>sdf3</li>
+				  </ul>
+
+				  <h5 style="font-size:16px; margin-bottom:4px;">2. Steps</h5>
+				  <ul style="margin-top:0;">
+					<li>sdf</li>
+				  </ul>
+				</div>
+			<p id="descriptionEllipsis" class="ellipsis">...</p>
+        </div>
+      </div>
+	        <div class="info-icon" onclick="toggleIntro(event)">ℹ️ About</div>
+
+      <!-- Popup intro -->
   <div class="container">
     <div class="clock">
       <div class="hand hour" id="hour"></div>
@@ -523,6 +676,8 @@
 		<div id="status3" class="status"></div>
       </div>
     </div>
+
+    </div>
   </div>
 
   <audio id="ding" src="https://www.soundjay.com/button/sounds/button-3.mp3" preload="auto"></audio>
@@ -538,8 +693,63 @@
 	</script>
 
   <script>
-    const clock = document.querySelector('.clock');
+// Close popup function (already in your code)
+function closePopup() {
+  document.getElementById("introPopup").style.display = "none";
+}
 
+// Toggle Origin content
+document.getElementById("originHeading").addEventListener("click", function() {
+  const content = document.getElementById("originContent");
+  const ellipsis = document.getElementById("originEllipsis");
+
+  if (content.style.display === "none" || content.style.display === "") {
+    // Expand content
+    content.style.display = "block";
+    ellipsis.style.display = "none";
+  } else {
+    // Collapse content
+    content.style.display = "none";
+    ellipsis.style.display = "block";
+  }
+});
+document.getElementById("descriptionHeading").addEventListener("click", function() {
+  const content = document.getElementById("descriptionContent");
+  const ellipsis = document.getElementById("descriptionEllipsis");
+
+  if (content.style.display === "none" || content.style.display === "") {
+    // Expand content
+    content.style.display = "block";
+    ellipsis.style.display = "none";
+  } else {
+    // Collapse content
+    content.style.display = "none";
+    ellipsis.style.display = "block";
+  }
+});
+
+  function closePopup() {
+  document.getElementById("introPopup").style.display = "none";
+}
+
+	function toggleIntro(event) {
+	  event.stopPropagation(); // prevent immediate close
+	  const popup = document.getElementById("introPopup");
+	  popup.style.display = (popup.style.display === "block") ? "none" : "block";
+	}
+
+	// Close popup when clicking anywhere else
+	document.addEventListener("click", function() {
+	  const popup = document.getElementById("introPopup");
+	  popup.style.display = "none";
+	});
+
+	// Prevent closing when clicking inside popup
+	document.getElementById("introPopup").addEventListener("click", function(event) {
+	  event.stopPropagation();
+	});
+
+    const clock = document.querySelector('.clock');
     // Add numbers
     const numberRadius = 135;
     for (let i = 1; i <= 12; i++) {
