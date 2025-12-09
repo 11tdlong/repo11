@@ -574,20 +574,33 @@
   font-weight: bold;
   color: #666;
 }
+/* Overlay backdrop */
+.overlay {
+  display: none; /* hidden by default */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.4); /* semi-transparent black */
+  z-index: 999; /* just below the popup */
+}
+
   </style>
 </head>
 <body>
+	  <div id="overlay" class="overlay"></div>
       <div id="introPopup" class="popup">
         <div class="popup-content">
 		<button class="close-btn" onclick="closePopup()">✖</button>
           <h3>Welcome, have a nice day</h3>
           <p>
-            This page is to show my portforlios, demonstrations about several topics in software development, but basically the main points are about Autotomation tests and related technologies
+            This page is to show my portforlios, demonstrations about some topics in software development. The main focus is on Autotomation tests and related technologies
           </p>
 		    <h4 id="originHeading" class="toggle-heading">Origin</h4>
 			<p id="originContent" class="toggle-content">
 			  <!-- You can replace this with your new content -->
-			  This was started when i wanted to create a smooth movement clock which is currently on the left. Clocks with such movement seems to be so rare, I can only see them in 2 places (1 is a javascript thing found using Google search named Smooth Seconds Online Clock, other is the clock symbol in iphone). Next I got an idea to have a tool read updates on particular websites, this can be achived using popular web automation tools (cypress, playwright, robotframework, selenium,...) and it needs to be on cloud so we can call it just from the mobiles hence github action, github page with backend provision are built. Next I added some api tests which later became load test demonstration which is also a crucial domain in software testing. And finally so far, I've added muliple choices of reports for automatic regression tests
+			  This was started when i wanted to create a smooth movement clock which is currently on the left. Clocks with such movement seems to be so rare, I 've only found them in 2 places (1 is a javascript thing found using Google search named Smooth Seconds Online Clock, other is the clock symbol in iphone). Then I got an idea to have a tool read updates on particular websites, this can be achived using popular web automation tools (cypress, playwright, robotframework, selenium,...) and it needs to be on cloud so we can call it just from the mobiles hence github action, github page with backend provision are built. Next I added some api tests which later became load test demonstration which is also a crucial domain in software testing. And finally so far, I've added muliple choices of reports for automatic regression tests
 			</p>
 			<p id="originEllipsis" class="ellipsis">...</p>
 			
@@ -595,13 +608,19 @@
 				<div id="descriptionContent" class="toggle-content">
 				  <h5 style="font-size:16px; margin-bottom:4px;">1. Frameworks and tools</h5>
 				  <ul style="margin-top:0;">
-					<li>sdfs</li>
-					<li>sdf3</li>
+					<li>Html, CSS, Javascript, Github page</li>
+					<li>Nodejs, Express</li>
+					<li>Cypress, Robotframework, Playwright, Selenium java, Cucumber</li>
+					<li>Github action CI</li>
+					<li>Multiple cucumber, Extent, Masterthought, Allure, Robot dashboard report</li>
 				  </ul>
 
-				  <h5 style="font-size:16px; margin-bottom:4px;">2. Steps</h5>
+				  <h5 style="font-size:16px; margin-bottom:4px;">2. Demonstrations</h5>
 				  <ul style="margin-top:0;">
-					<li>sdf</li>
+					<li>Check 1: Start github action workflow to call a cypress script to scrap data on some website, show the output</li>
+					<li>Check 2: Call github action workflow to trigger test suites, 3 methods supported: robotframework, playwright, selenium</li>
+					<li>Check 3: Run an api test directly from backend, no CI workflow</li>
+					<li>Check 4: Call github action workflow to trigger a loadtest</li>
 				  </ul>
 				</div>
 			<p id="descriptionEllipsis" class="ellipsis">...</p>
@@ -729,19 +748,28 @@ document.getElementById("descriptionHeading").addEventListener("click", function
 });
 
   function closePopup() {
-  document.getElementById("introPopup").style.display = "none";
+	  document.getElementById("introPopup").style.display = "none";
+	  document.getElementById("overlay").style.display = "none";
 }
 
 	function toggleIntro(event) {
 	  event.stopPropagation(); // prevent immediate close
 	  const popup = document.getElementById("introPopup");
-	  popup.style.display = (popup.style.display === "block") ? "none" : "block";
+	  const overlay = document.getElementById("overlay");
+	    if (popup.style.display === "block") {
+			popup.style.display = "none";
+			overlay.style.display = "none";
+		  } else {
+			popup.style.display = "block";
+			overlay.style.display = "block";
+		  }
 	}
 
 	// Close popup when clicking anywhere else
 	document.addEventListener("click", function() {
 	  const popup = document.getElementById("introPopup");
 	  popup.style.display = "none";
+	  document.getElementById("overlay").style.display = "none";
 	});
 
 	// Prevent closing when clicking inside popup
@@ -1147,7 +1175,7 @@ function startProcess3() {
       }
 
       const fireantOutput = formatQuote(data.quotes || []);
-      status.innerHTML = `<pre><strong>📊 FireAnt Data</strong>\n\n${fireantOutput}</pre>`;
+      status.innerHTML = `<pre><strong>📊 REST Data</strong>\n\n${fireantOutput}</pre>`;
 
       // ✅ Then: Formatted quotes from Bash script
       return fetch(`https://repo1-qygx.onrender.com/quotes/${code}`);
