@@ -464,19 +464,30 @@
   border: none;
   padding: 0;
   box-shadow: none;
-  filter: drop-shadow(3px 3px 2px rgba(0, 0, 0, 0.35)); /* subtle shadow */
+  filter: drop-shadow(3px 3px 2px rgba(0, 0, 0, 0.2)); /* subtle shadow */
   transition: transform 0.2s ease; /* smooth scaling */
   z-index: 9999;
   position: relative;
 }
 
-.info-icon:hover {
-  transform: scale(1.3); /* ✅ grows bigger on hover */
-  background: none;      /* ensure no background box */
-  box-shadow: none;      /* ensure no box shadow box */
+.info-item {
+  cursor: pointer;
+  font-size: 18px;
+  color: #007BFF;
+  background: none;
+  border: none;
+  padding: 0;
+  box-shadow: none;
+  filter: drop-shadow(3px 3px 2px rgba(0, 0, 0, 0.2));
+  transition: transform 0.2s ease;
+  margin-bottom: 5px;
 }
 
-
+.info-item:hover {
+  transform: scale(1.3);   /* ✅ only the hovered item grows */
+  background: none;
+  box-shadow: none;
+}
 .tooltip-popup {
   display: none; /* hidden by default */
   position: absolute;
@@ -634,9 +645,13 @@
 			<p id="descriptionEllipsis" class="ellipsis">...</p>
         </div>
       </div>
-	        <div class="info-icon" onclick="toggleIntro(event)">ℹ️ About</div>
+	<div class="info-icon">
+	  <div class="info-item" onclick="toggleIntro(event)">ℹ️ About</div>
+	  <div class="info-item" onclick="toggleFeedback(event)">💬 Feedback</div>
+	  <div class="info-item" id="visitor-counter">👥 Visitors: <span id="visitor-count">0</span></div>
+	</div>
 
-      <!-- Popup intro -->
+
   <div class="container">
     <div class="clock">
       <div class="hand hour" id="hour"></div>
@@ -709,7 +724,7 @@
 
   <audio id="ding" src="https://www.soundjay.com/button/sounds/button-3.mp3" preload="auto"></audio>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-	<script>
+  <script>
 	  window.addEventListener('DOMContentLoaded', function() {
 		document.getElementById('input3').addEventListener('keydown', function(event) {
 		  if (event.key === 'Enter') {
@@ -720,6 +735,21 @@
 	</script>
 
   <script>
+// Placeholder for feedback
+function toggleFeedback(event) {
+  // Later you can open a modal, form, or redirect
+  alert("Feedback function coming soon!");
+}
+
+// Visitor counter logic
+async function updateVisitorCount() {
+  const response = await fetch("https://repo1-qygx.onrender.com/api/visitors");
+  const data = await response.json();
+  document.getElementById("visitor-count").textContent = data.count;
+}
+
+// Run when page loads
+updateVisitorCount();
 // Close popup function (already in your code)
 function closePopup() {
   document.getElementById("introPopup").style.display = "none";
