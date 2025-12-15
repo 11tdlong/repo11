@@ -600,6 +600,52 @@
   background: rgba(0,0,0,0.4); /* semi-transparent black */
   z-index: 999; /* just below the popup */
 }
+.modal-overlay {
+  display: none; /* hidden until triggered */
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.5);
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+.modal-box {
+  background: #fff;
+  width: 900px;
+  height: 480px;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  display: flex;
+  flex-direction: column; /* stack elements vertically */
+  align-items: flex-start; /* align everything to the left */
+  justify-content: space-between; /* push button to bottom */
+}
+
+.modal-box h2 {
+  margin-top: 0;
+}
+
+.modal-box input,
+.modal-box textarea {
+  width: 100%; /* full width but still left aligned */
+  margin-bottom: 10px;
+}
+
+.modal-box textarea {
+  flex-grow: 1; /* expand to fill vertical space */
+  resize: none;
+}
+
+.modal-box button {
+  align-self: flex-start; /* left aligned */
+  margin-top: 10px;
+}
+#contactInput {
+  width: 44%;   /* half the modal width */
+  box-sizing: border-box;
+}
 
   </style>
 </head>
@@ -645,9 +691,17 @@
 			<p id="descriptionEllipsis" class="ellipsis">...</p>
         </div>
       </div>
+	<div class="modal-overlay" id="feedbackOverlay">
+	  <div class="modal-box" id="feedbackBox">
+		<h2>Feedback</h2>
+		<input type="text" id="contactInput" placeholder="Contact, Email, Phone, Nickname,...">
+		<textarea id="feedbackInput" placeholder="Any Feedbacks, comments, ideas, spamming are welcome"></textarea>
+		<button id="sendBtn" disabled>Send</button>
+	  </div>
+	</div>
 	<div class="info-icon">
 	  <div class="info-item" onclick="toggleIntro(event)">ℹ️ About</div>
-	  <div class="info-item" onclick="toggleFeedback(event)">💬 Feedback</div>
+	  <div class="info-item" onclick="openFeedback(event)">💬 Feedback</div>
 	  <div class="info-item" id="visitor-counter">👥 Visitors: <span id="visitor-count">0</span></div>
 	</div>
 
@@ -735,11 +789,72 @@
 	</script>
 
   <script>
-// Placeholder for feedback
-function toggleFeedback(event) {
-  // Later you can open a modal, form, or redirect
-  alert("Feedback function coming soon!");
+  const overlay = document.getElementById("feedbackOverlay");
+  const contactInput = document.getElementById("contactInput");
+  const feedbackInput = document.getElementById("feedbackInput");
+  const sendBtn = document.getElementById("sendBtn");
+
+function openFeedback(event) {
+  if (event) event.stopPropagation(); // prevent immediate close
+  const overlay = document.getElementById("feedbackOverlay");
+  const box = document.getElementById("feedbackBox");
+
+  if (overlay.style.display === "flex") {
+    overlay.style.display = "none";
+  } else {
+    overlay.style.display = "flex";
+  }
 }
+
+// Close feedback when clicking anywhere else
+document.addEventListener("click", function(e) {
+  const overlay = document.getElementById("feedbackOverlay");
+  const box = document.getElementById("feedbackBox");
+
+  if (overlay.style.display === "flex" && !box.contains(e.target)) {
+    overlay.style.display = "none";
+  }
+});
+
+  // Enable button if either input has content
+  function toggleButton() {
+    if (contactInput.value.trim() || feedbackInput.value.trim()) {
+      sendBtn.disabled = false;
+    } else {
+      sendBtn.disabled = true;
+    }
+  }
+
+  contactInput.addEventListener("input", toggleButton);
+  feedbackInput.addEventListener("input", toggleButton);
+
+  // Example send action
+sendBtn.addEventListener("click", async function() {
+  try {
+    const res = await fetch("https://repo1-qygx.onrender.com/api/feedback", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contact: contactInput.value,
+        data: feedbackInput.value
+      })
+    });
+
+    if (res.ok) {
+      alert("Feedback submitted!");
+      overlay.style.display = "none";
+      contactInput.value = "";
+      feedbackInput.value = "";
+      sendBtn.disabled = true;
+    } else {
+      alert("Failed to submit feedback.");
+    }
+  } catch (err) {
+    console.error(err);
+    alert("Error submitting feedback.");
+  }
+});
+
 
 // Visitor counter logic
 async function updateVisitorCount() {
