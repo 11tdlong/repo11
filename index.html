@@ -655,7 +655,30 @@ button:disabled {
   opacity: 0.7;             /* slightly faded */
   box-shadow: none;         /* remove depth */
 }
+  /* Base style */
+  #visitor-count {
+    display: inline-block;
+    cursor: pointer;
+    position: relative;
+    z-index: 1;
+  }
 
+  /* Portal zoom-through effect */
+.portal {
+  animation: zoomPortal 0.5s forwards cubic-bezier(0.8, 0, 1, 1);
+}
+
+@keyframes zoomPortal {
+  10% { transform: scale(5); }
+  20% { transform: scale(8); }
+  30% { transform: scale(20); }
+  40%  { transform: scale(20); opacity: 0.9; filter: blur(1px); }
+  60%  { transform: scale(60); opacity: 0.7; filter: blur(2px); }
+  75%  { transform: scale(120); opacity: 0.5; filter: blur(3px); }
+  85%  { transform: scale(250); opacity: 0.4; filter: blur(4px); }
+  95%  { transform: scale(500); opacity: 0.2; filter: blur(6px); }
+  100% { transform: scale(1); opacity: 1; filter: blur(0px); }
+}
   </style>
 </head>
 <body>
@@ -880,7 +903,18 @@ updateVisitorCount();
 function closePopup() {
   document.getElementById("introPopup").style.display = "none";
 }
+  const visitorCount = document.getElementById("visitor-counter");
+   visitorCount.addEventListener("click", () => {
+    const span = document.getElementById("visitor-count");
 
+    // Trigger portal animation
+    span.classList.add("portal");
+
+    // Reset class after animation so it can replay
+    setTimeout(() => {
+      span.classList.remove("portal");
+    }, 1600);
+  });
 // Toggle Origin content
 document.getElementById("originHeading").addEventListener("click", function() {
   const content = document.getElementById("originContent");
