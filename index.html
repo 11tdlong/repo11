@@ -647,6 +647,14 @@
   width: 44%;   /* half the modal width */
   box-sizing: border-box;
 }
+button:disabled {
+  background-color: #ccc;   /* grey background */
+  color: #666;              /* dimmed text */
+  border: 1px solid #aaa;   /* lighter border */
+  cursor: not-allowed;      /* show blocked cursor */
+  opacity: 0.7;             /* slightly faded */
+  box-shadow: none;         /* remove depth */
+}
 
   </style>
 </head>
@@ -831,6 +839,7 @@ document.addEventListener("click", function(e) {
 
   // Example send action
 sendBtn.addEventListener("click", async function() {
+    sendBtn.disabled = true;
   try {
     const res = await fetch("https://repo1-qygx.onrender.com/api/feedback", {
       method: "POST",
@@ -846,13 +855,14 @@ sendBtn.addEventListener("click", async function() {
       overlay.style.display = "none";
       contactInput.value = "";
       feedbackInput.value = "";
-      sendBtn.disabled = true;
     } else {
       alert("Failed to submit feedback.");
+	  sendBtn.disabled = false;
     }
   } catch (err) {
     console.error(err);
     alert("Error submitting feedback.");
+	sendBtn.disabled = false;
   }
 });
 
