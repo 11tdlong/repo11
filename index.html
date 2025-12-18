@@ -665,23 +665,20 @@ button:disabled {
     position: relative;
     z-index: 1;
   }
-
-  /* Portal zoom-through effect */
 .portal {
-  animation: zoomPortal 0.5s forwards cubic-bezier(0.8, 0, 1, 1);
+  animation: zoomPortal 0.8s forwards ease-in-out;
+  will-change: transform, opacity;
 }
 
 @keyframes zoomPortal {
-  10% { transform: scale(5); }
-  20% { transform: scale(8); }
-  30% { transform: scale(20); }
-  40%  { transform: scale(20); opacity: 0.9; filter: blur(1px); }
-  60%  { transform: scale(60); opacity: 0.7; filter: blur(2px); }
-  75%  { transform: scale(120); opacity: 0.5; filter: blur(3px); }
-  85%  { transform: scale(250); opacity: 0.4; filter: blur(4px); }
-  95%  { transform: scale(500); opacity: 0.2; filter: blur(6px); }
-  100% { transform: scale(1); opacity: 1; filter: blur(0px); }
+  0%   { transform: scale(1);   opacity: 1;   filter: blur(0); }
+  25%  { transform: scale(5);   opacity: 0.9; filter: blur(1px); }
+  50%  { transform: scale(20);  opacity: 0.6; filter: blur(2px); }
+  75%  { transform: scale(40);  opacity: 0.3; filter: blur(3px); }
+  100% { transform: scale(40);  opacity: 0;   filter: blur(3px); }
 }
+
+
   </style>
 </head>
 <body>
@@ -913,9 +910,7 @@ function closePopup() {
     span.classList.add("portal");
 
     // Reset class after animation so it can replay
-    setTimeout(() => {
-      span.classList.remove("portal");
-    }, 1600);
+    span.addEventListener("animationend", () => { span.classList.remove("portal"); });
   });
 // Toggle Origin content
 document.getElementById("originHeading").addEventListener("click", function() {
