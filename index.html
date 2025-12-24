@@ -1404,29 +1404,59 @@ function startProcess3() {
       return res.text();
     })
 	
-	.then(formatted => {
-	  // keep the animation markup in a variable
-	  const animationHTML = `
-		<div id="animation" style="text-align:center;">
-		  <div class="animation-container">
-			<div class="laptop"><div class="screen"></div><div class="base"></div></div>
-			<div class="cylinder"><div class="cylinder-top"></div></div>
-			<div class="signal"></div>
-		  </div>
-		</div>`;
+.then(formatted => {
+  // keep the animation markup in a variable
+  const animationHTML = `
+    <div id="animation" style="text-align:center;">
+      <div class="animation-container">
+        <div class="laptop"><div class="screen"></div><div class="base"></div></div>
+        <div class="cylinder"><div class="cylinder-top"></div></div>
+        <div class="signal"></div>
+      </div>
+    </div>`;
 
-	  // append animation to whatever is already in status
-	  status.innerHTML += animationHTML;
+  // append animation to whatever is already in status
+  status.innerHTML += animationHTML;
 
-	  // after 20s, remove animation and append the log link
-	  setTimeout(() => {
-		const anim = document.getElementById('animation');
-		if (anim) anim.remove();
+  // now that it's in the DOM, query the elements
+  const s = document.querySelector('.signal'),
+        l = document.querySelector('.laptop'),
+        c = document.querySelector('.cylinder');
+  let r = 0, max = 5;
 
-		status.innerHTML += `<pre><strong>✅ Mocha API:</strong> 📄 
-		  <a href="https://11tdlong.github.io/repo11/tmp/allure-mocha/index.html" target="_blank">Allure log</a></pre>`;
-	  }, 20000);
-	})
+  function run() {
+    r++;
+    s.style.left = l.offsetLeft + 'px';
+    s.style.opacity = 1;
+    s.style.transition = 'left 1s linear';
+    s.style.left = (c.offsetLeft + c.offsetWidth - s.offsetWidth) + 'px';
+    setTimeout(() => {
+      s.style.opacity = 0;
+      setTimeout(() => {
+        s.style.opacity = 1;
+        s.style.transition = 'left 1s linear';
+        s.style.left = l.offsetLeft + 'px';
+        setTimeout(() => {
+          s.style.opacity = 0;
+          setTimeout(() => { if (r < max) run(); }, 500);
+        }, 1000);
+      }, 1000);
+    }, 1000);
+  }
+
+  // kick off animation
+  setTimeout(run, 1000);
+
+  // after 20s, remove animation and append the log link
+  setTimeout(() => {
+    const anim = document.getElementById('animation');
+    if (anim) anim.remove();
+
+    status.innerHTML += `<pre><strong>✅ Mocha API:</strong> 📄 
+      <a href="https://11tdlong.github.io/repo11/tmp/allure-mocha/index.html" target="_blank">Allure log</a></pre>`;
+  }, 20000);
+})
+
 
     .catch(err => {
       if (!status.innerHTML.includes('❌')) {
@@ -1549,7 +1579,35 @@ function startCountdown(start, id) {
     });
   }, 1000);
 }
-const s=document.querySelector('.signal'),l=document.querySelector('.laptop'),c=document.querySelector('.cylinder');let r=0,max=5; function run(){r++;s.style.left=l.offsetLeft+'px';s.style.opacity=1;s.style.transition='left 1s linear';s.style.left=(c.offsetLeft+c.offsetWidth-s.offsetWidth)+'px'; setTimeout(()=>{s.style.opacity=0;setTimeout(()=>{s.style.opacity=1;s.style.transition='left 1s linear';s.style.left=l.offsetLeft+'px'; setTimeout(()=>{s.style.opacity=0;setTimeout(()=>{if(r<max)run()},500)},1000)},1000)},1000)} setTimeout(run,1000);
+document.addEventListener('DOMContentLoaded', () => {
+  const s = document.querySelector('.signal'),
+        l = document.querySelector('.laptop'),
+        c = document.querySelector('.cylinder');
+  let r = 0, max = 5;
+
+  function run() {
+    r++;
+    s.style.left = l.offsetLeft + 'px';
+    s.style.opacity = 1;
+    s.style.transition = 'left 1s linear';
+    s.style.left = (c.offsetLeft + c.offsetWidth - s.offsetWidth) + 'px';
+    setTimeout(() => {
+      s.style.opacity = 0;
+      setTimeout(() => {
+        s.style.opacity = 1;
+        s.style.transition = 'left 1s linear';
+        s.style.left = l.offsetLeft + 'px';
+        setTimeout(() => {
+          s.style.opacity = 0;
+          setTimeout(() => { if (r < max) run(); }, 500);
+        }, 1000);
+      }, 1000);
+    }, 1000);
+  }
+
+  setTimeout(run, 1000);
+});
+
   </script>
 </body>
 </html>
