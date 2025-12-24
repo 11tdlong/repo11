@@ -680,7 +680,14 @@ button:disabled {
   75%  { transform: scale(40);  opacity: 0.3; filter: blur(3px); }
   100% { transform: scale(40);  opacity: 0;   filter: blur(3px); }
 }
-
+.animation-container{position:relative;width:133px;height:50px}
+.laptop{position:absolute;left:0;top:50%;transform:translateY(-50%);width:20px}
+.screen{width:100%;height:15px;border:1px solid #000;background:#fff}
+.base{margin:0 auto;width:70%;height:3px;border:1px solid #000;background:#fff}
+.cylinder{position:absolute;right:0;top:50%;transform:translateY(-50%);width:40px;height:25px;border:1px solid #000;border-radius:50%/25%;background:#fff}
+.cylinder-top{position:absolute;top:-5px;left:-1px;width:100%;height:10px;border:1px solid #000;border-radius:50%;background:#fff}
+.signal{position:absolute;top:50%;transform:translateY(-50%);width:7px;height:10px;background:#000;opacity:0;
+clip-path:polygon(50% 0,65% 35%,45% 35%,70% 100%,20% 55%,40% 55%,25% 0)}
 
   </style>
 </head>
@@ -1387,7 +1394,7 @@ function startProcess3() {
       }
 
       const fireantOutput = formatQuote(data.quotes || []);
-      status.innerHTML = `<pre><strong>📊 REST Data</strong>\n\n${fireantOutput}</pre>`;
+      status.innerHTML = `<pre><strong>📊 REST Data</strong>\n${fireantOutput}</pre>`;
 
       // ✅ Then: Formatted quotes from Bash script
       return fetch(`https://repo1-qygx.onrender.com/quotes/${code}`);
@@ -1396,11 +1403,31 @@ function startProcess3() {
       if (!res.ok) throw new Error('Formatted quotes fetch failed');
       return res.text();
     })
-    .then(formatted => {
-      setTimeout(() => {
-        status.innerHTML += `<pre><strong>✅ Mocha API:</strong> 📄 <a href="https://11tdlong.github.io/repo11/tmp/allure_mocha/index.html" target="_blank">Allure log</a></pre>`;
-		}, 20000);
+	
+	.then(formatted => {
+	  // keep the animation markup in a variable
+	  const animationHTML = `
+		<div id="animation" style="text-align:center;">
+		  <div class="animation-container">
+			<div class="laptop"><div class="screen"></div><div class="base"></div></div>
+			<div class="cylinder"><div class="cylinder-top"></div></div>
+			<div class="signal"></div>
+		  </div>
+		</div>`;
+
+	  // append animation to whatever is already in status
+	  status.innerHTML += animationHTML;
+
+	  // after 20s, remove animation and append the log link
+	  setTimeout(() => {
+		const anim = document.getElementById('animation');
+		if (anim) anim.remove();
+
+		status.innerHTML += `<pre><strong>✅ Mocha API:</strong> 📄 
+		  <a href="https://11tdlong.github.io/repo11/tmp/allure-mocha/index.html" target="_blank">Allure log</a></pre>`;
+	  }, 20000);
 	})
+
     .catch(err => {
       if (!status.innerHTML.includes('❌')) {
         status.innerHTML = `<pre class="warning">❌ Error: ${err.message}</pre>`;
@@ -1522,6 +1549,7 @@ function startCountdown(start, id) {
     });
   }, 1000);
 }
+const s=document.querySelector('.signal'),l=document.querySelector('.laptop'),c=document.querySelector('.cylinder');let r=0,max=5; function run(){r++;s.style.left=l.offsetLeft+'px';s.style.opacity=1;s.style.transition='left 1s linear';s.style.left=(c.offsetLeft+c.offsetWidth-s.offsetWidth)+'px'; setTimeout(()=>{s.style.opacity=0;setTimeout(()=>{s.style.opacity=1;s.style.transition='left 1s linear';s.style.left=l.offsetLeft+'px'; setTimeout(()=>{s.style.opacity=0;setTimeout(()=>{if(r<max)run()},500)},1000)},1000)},1000)} setTimeout(run,1000);
   </script>
 </body>
 </html>
