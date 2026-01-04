@@ -1053,66 +1053,49 @@ document.getElementById("descriptionEllipsis").addEventListener("click", functio
     }
 
     requestAnimationFrame(updateClock);
-
-    // Button action
+	
 function startProcess() {
   const runner = document.getElementById('runner');
   const status = document.getElementById('status');
-  const container = document.querySelector('.align-left');
 
   runner.setAttribute('data-running', 'true');
   runner.style.display = 'flex';
-  status.innerHTML = '<div id="trigger-msg">✅ Workflow triggered successfully</div>';
-  fetch('https://repo1-qygx.onrender.com/trigger-workflow', { method: 'POST', headers: { 'Content-Type': 'application/json' } })
+  updateStatus(status, '<div id="trigger-msg">✅ Workflow triggered successfully</div>', 'robot-temp1');
+
+  fetch('https://repo1-qygx.onrender.com/trigger-workflow', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' }
+  })
     .then(res => res.json())
     .then(data => {
       const triggerMsg = document.getElementById('trigger-msg');
       if (triggerMsg) {
-	    startCountdown(120, 'countdown');
+        startCountdown(120, 'countdown');
         triggerMsg.textContent = data.message || '✅ Workflow triggered successfully';
-        setTimeout(() => {
-          console.log('Showing runner now');
-          runner.style.display = 'flex';
-        }, 200);
       }
 
-      // Delay before fetching logs
+      // Instead of fixed 170s, consider polling for logs here
       setTimeout(() => {
-        fetch('https://repo1-qygx.onrender.com/logs/cypress')
-          .then(res => res.json())
-          .then(logData => {
-            runner.style.display = 'none';
-            runner.setAttribute('data-running', 'false');
+        runner.style.display = 'none';
+        runner.setAttribute('data-running', 'false');
 
-            const { log, warning } = extractRelevantLog(logData.logs);
+        document.getElementById('playwright')?.remove();
+        document.getElementById('cypress')?.remove();
 
-            // Optional: Format date inside log if needed
-            const formattedLog = formatLogDate(log);
-
-            status.innerHTML = warning
-              ? `<pre class="warning">${formattedLog}</pre>`
-              : `<pre>${formattedLog}</pre>`;
-
-            confetti({
-              particleCount: 100,
-              spread: 70,
-              origin: { y: 0.6 }
-            });
-
-            
-          })
-          .catch(err => {
-            runner.style.display = 'none';
-            runner.setAttribute('data-running', 'false');
-            status.textContent = '❌ Error fetching logs';
-            console.error(err);
-          });
-      }, 120000);
+        updateStatus(status, `
+          <div id="cypress" style="font-family: monospace;">
+            ✅ Cypress workflow completed: 📄 
+            <a href="https://11tdlong.github.io/repo11/tmp/allure-cypress/index.html"
+               target="_blank" rel="noopener noreferrer" id="allure-cypress-link">
+              Cypress Allure Report</a>
+          </div>
+        `, 'robot-temp1');
+      }, 170000);
     })
     .catch(err => {
       runner.style.display = 'none';
       runner.setAttribute('data-running', 'false');
-      status.textContent = '❌ Error triggering workflow';
+      updateStatus(status, '❌ Error triggering workflow', 'robot-temp1');
       console.error(err);
     });
 }
