@@ -1069,11 +1069,11 @@ function startProcess() {
     .then(res => res.json())
     .then(data => {
       const triggerMsg = document.getElementById('trigger-msg');
-      if (triggerMsg) {
+	  if (triggerMsg && data.message) {
+		  // Only overwrite if server returned a custom message 
+		  triggerMsg.textContent = data.message; 
+	  }
         startCountdown(120, 'countdown');
-        triggerMsg.textContent = data.message || '✅ Workflow triggered successfully';
-      }
-
       // Instead of fixed 170s, consider polling for logs here
       setTimeout(() => {
         runner.style.display = 'none';
