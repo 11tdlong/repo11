@@ -1166,7 +1166,14 @@ function showTempStatus(statusEl, id, message) {
 function updateStatus(statusEl, newHtml, tempId) {
   // Remove only the temporary node for this suite
   const temp = document.getElementById(tempId);
-  if (temp) temp.remove();
+  if (temp) {
+    // also remove the divider right before it, if present
+    const prev = temp.previousElementSibling;
+    if (prev && prev.tagName === "HR") {
+      prev.remove();
+    }
+    temp.remove();
+  }
 
   const current = statusEl.innerHTML.trim();
   if (current) {
@@ -1178,6 +1185,7 @@ function updateStatus(statusEl, newHtml, tempId) {
     statusEl.innerHTML = newHtml;
   }
 }
+
 
 function startProcess2() {
   let interval;
